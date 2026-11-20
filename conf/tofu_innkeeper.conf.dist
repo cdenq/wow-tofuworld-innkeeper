@@ -3,7 +3,7 @@
 ###################################################################################################
 # wow-tofuworld-innkeeper (mod-tofu-innkeeper)
 #
-# Kreemo <Tofu Innkeeper>, creature entry 900001. Every key here is read at startup and again on .reload config (in-game chat or the worldserver console), so edits go live without a rebuild or restart, and players never need to delete their Cache folder.
+# Kreemo <Tofu Innkeeper>, creature entry 900003. Every key here is read at startup and again on .reload config (in-game chat or the worldserver console), so edits go live without a rebuild or restart, and players never need to delete their Cache folder.
 #
 # Text rules (the core's conf parser): one value per line; every double quote inside a value is removed, so write dialogue with single quotes only; $n is the player's name, $c the class, $r the race, $B a line break.
 ###################################################################################################

@@ -1,7 +1,7 @@
 /*
  * wow-tofuworld-innkeeper (deployed as mod-tofu-innkeeper)
  *
- * Kreemo <Tofu Innkeeper>, creature entry 900001, ScriptName npc_tofu_innkeeper.
+ * Kreemo <Tofu Innkeeper>, creature entry 900003, ScriptName npc_tofu_innkeeper.
  * Root page: the greeting, the stock innkeeper buttons (bind hearthstone, vendor when the creature has npc_vendor rows, Hallow's End trick-or-treat), then the conf menu nodes.
  * Menu nodes come from TofuInnkeeper.Menu.<id>.<Field> keys in tofu_innkeeper.conf. A dotted id is a child of the id before its last dot (news.systems is a child of news).
  * The conf is read at startup and on .reload config, so menus change live without a rebuild or restart.
