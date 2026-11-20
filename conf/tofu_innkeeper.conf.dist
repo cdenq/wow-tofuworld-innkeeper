@@ -1,0 +1,82 @@
+[worldserver]
+
+###################################################################################################
+# wow-tofuworld-innkeeper (mod-tofu-innkeeper)
+#
+# Kreemo <Tofu Innkeeper>, creature entry 900001. Every key here is read at startup and again on .reload config (in-game chat or the worldserver console), so edits go live without a rebuild or restart, and players never need to delete their Cache folder.
+#
+# Text rules (the core's conf parser): one value per line; every double quote inside a value is removed, so write dialogue with single quotes only; $n is the player's name, $c the class, $r the race, $B a line break.
+###################################################################################################
+
+#    TofuInnkeeper.Enable
+#        Description: Kreemo's custom menus. 0 makes him show the core's default (empty) gossip.
+#        Default:     1
+
+TofuInnkeeper.Enable = 1
+
+#    TofuInnkeeper.HallowsEnd
+#        Description: Offer the stock Trick or Treat! button during Hallow's End, like every stock innkeeper.
+#        Default:     1
+
+TofuInnkeeper.HallowsEnd = 1
+
+#    TofuInnkeeper.Greeting
+#        Description: Text of the first page.
+
+TofuInnkeeper.Greeting = "Greetings, $n. Any member of the Tofu Worldview or the Tofu Challengers is welcome to our Guild Hub!"
+
+#    TofuInnkeeper.InnLabel, TofuInnkeeper.VendorLabel
+#        Description: Labels of the hearthstone and vendor buttons. Empty means the stock texts (Make this inn your home. / Let me browse your goods.). The vendor button only appears while Kreemo has items in npc_vendor.
+#        Default:     ""
+
+TofuInnkeeper.InnLabel = ""
+TofuInnkeeper.VendorLabel = ""
+
+#    TofuInnkeeper.BackLabel
+#        Description: Label of the button that returns to the previous page.
+#        Default:     "Back"
+
+TofuInnkeeper.BackLabel = "Back"
+
+#    TofuInnkeeper.TextIdBase
+#        Description: First of the 100 text IDs the module uses (the root page, then one per menu). The range must not be used by any npc_text row. Registered for Tofu Worldview: 900100 to 900199.
+#        Default:     900100
+
+TofuInnkeeper.TextIdBase = 900100
+
+###################################################################################################
+# MENUS
+#
+#    TofuInnkeeper.Menu.<id>.Label   Button text (required).
+#    TofuInnkeeper.Menu.<id>.Text    Paragraph at the top of the page the button opens (optional; the label is shown when empty).
+#    TofuInnkeeper.Menu.<id>.Order   Sort position among its siblings, lowest first (optional, default 100; ties sort by id).
+#    TofuInnkeeper.Menu.<id>.Icon    Button icon 0 to 20 (optional, default 0, chat bubble). 1 bag, 2 flight, 3 book, 4 and 5 cog, 6 coin bag, 7 talk, 8 tabard, 9 swords, 10 dot.
+#
+# An id is letters, digits, and underscores. A dot makes a submenu: news.systems is a button on the news page. Every page except the first gets a Back button.
+# Limits: 99 menus in total; 29 buttons on the first page, 31 on every other page. Problems (a missing Label, a missing parent) are logged as TofuInnkeeper warnings at load and the menu is skipped.
+###################################################################################################
+
+TofuInnkeeper.Menu.news.Label = "What's new in Azeroth?"
+TofuInnkeeper.Menu.news.Text = "Plenty, friend. The guilds keep me informed. What catches your ear?"
+TofuInnkeeper.Menu.news.Order = 10
+
+TofuInnkeeper.Menu.news.systems.Label = "Systems?"
+TofuInnkeeper.Menu.news.systems.Text = "How things work around here these days."
+TofuInnkeeper.Menu.news.systems.Order = 1
+
+TofuInnkeeper.Menu.news.systems.placeholder.Label = "(Placeholder) First systems entry"
+TofuInnkeeper.Menu.news.systems.placeholder.Text = "Replace this entry in tofu_innkeeper.conf, then type .reload config."
+
+TofuInnkeeper.Menu.news.content.Label = "Content?"
+TofuInnkeeper.Menu.news.content.Text = "New places to go and new things to fight."
+TofuInnkeeper.Menu.news.content.Order = 2
+
+TofuInnkeeper.Menu.news.content.placeholder.Label = "(Placeholder) First content entry"
+TofuInnkeeper.Menu.news.content.placeholder.Text = "Replace this entry in tofu_innkeeper.conf, then type .reload config."
+
+TofuInnkeeper.Menu.news.features.Label = "Features?"
+TofuInnkeeper.Menu.news.features.Text = "Conveniences the guilds have added for travelers."
+TofuInnkeeper.Menu.news.features.Order = 3
+
+TofuInnkeeper.Menu.news.features.placeholder.Label = "(Placeholder) First features entry"
+TofuInnkeeper.Menu.news.features.placeholder.Text = "Replace this entry in tofu_innkeeper.conf, then type .reload config."
