@@ -43,6 +43,6 @@ A dot in an id makes a submenu: `news.systems` is a button on the page of `news`
 
 ## Check
 
-- Server.log at startup: `TofuInnkeeper: loaded 7 menu node(s) (1 on the root page), text IDs 900100 to 900107.` with the shipped conf.
+- Server.log at startup: `TofuInnkeeper: loaded 23 menu node(s) (1 on the root page), text IDs 900100 to 900123.` with the shipped conf.
 - SQL (acore_world): `SELECT entry, name, subname, npcflag, ScriptName FROM creature_template WHERE entry = 900003;` = 900003, Kreemo, Tofu Innkeeper, 65665, npc_tofu_innkeeper.
-- In game: Kreemo shows the greeting with Make this inn your home. and What's new in Azeroth?; What's new opens Systems?, Content?, Features?, and Back; Make this inn your home. asks to bind the hearthstone there.
+- In game: Kreemo shows the greeting with Make this inn your home. and What's new in Azeroth?; What's new opens Systems, Content, Features, and Back, each listing its entries; Make this inn your home. asks to bind the hearthstone there.

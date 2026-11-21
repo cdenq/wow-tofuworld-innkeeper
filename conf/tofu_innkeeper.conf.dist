@@ -57,26 +57,74 @@ TofuInnkeeper.TextIdBase = 900100
 ###################################################################################################
 
 TofuInnkeeper.Menu.news.Label = "What's new in Azeroth?"
-TofuInnkeeper.Menu.news.Text = "Plenty, friend. The guilds keep me informed. What catches your ear?"
 TofuInnkeeper.Menu.news.Order = 10
+TofuInnkeeper.Menu.news.Text = "Plenty, friend! The Tofu Worldview and the Tofu Challengers keep me well informed, and a good innkeeper always knows the gossip. What catches your ear?"
 
-TofuInnkeeper.Menu.news.systems.Label = "Systems?"
-TofuInnkeeper.Menu.news.systems.Text = "How things work around here these days."
+TofuInnkeeper.Menu.news.systems.Label = "Systems"
 TofuInnkeeper.Menu.news.systems.Order = 1
+TofuInnkeeper.Menu.news.systems.Text = "How the world works around here."
 
-TofuInnkeeper.Menu.news.systems.placeholder.Label = "(Placeholder) First systems entry"
-TofuInnkeeper.Menu.news.systems.placeholder.Text = "Replace this entry in tofu_innkeeper.conf, then type .reload config."
+TofuInnkeeper.Menu.news.systems.playerbots.Label = "Playerbots"
+TofuInnkeeper.Menu.news.systems.playerbots.Order = 1
 
-TofuInnkeeper.Menu.news.content.Label = "Content?"
-TofuInnkeeper.Menu.news.content.Text = "New places to go and new things to fight."
+TofuInnkeeper.Menu.news.systems.challenge.Label = "Challenge Mode"
+TofuInnkeeper.Menu.news.systems.challenge.Order = 2
+
+TofuInnkeeper.Menu.news.systems.progression.Label = "Individual Progression"
+TofuInnkeeper.Menu.news.systems.progression.Order = 3
+
+TofuInnkeeper.Menu.news.content.Label = "Content"
 TofuInnkeeper.Menu.news.content.Order = 2
+TofuInnkeeper.Menu.news.content.Text = "New treasures to chase, and old ones brought back."
 
-TofuInnkeeper.Menu.news.content.placeholder.Label = "(Placeholder) First content entry"
-TofuInnkeeper.Menu.news.content.placeholder.Text = "Replace this entry in tofu_innkeeper.conf, then type .reload config."
+TofuInnkeeper.Menu.news.content.portal.Label = "Pocket Portal"
+TofuInnkeeper.Menu.news.content.portal.Order = 1
 
-TofuInnkeeper.Menu.news.features.Label = "Features?"
-TofuInnkeeper.Menu.news.features.Text = "Conveniences the guilds have added for travelers."
+TofuInnkeeper.Menu.news.content.guildhouse.Label = "Guild House"
+TofuInnkeeper.Menu.news.content.guildhouse.Order = 2
+
+TofuInnkeeper.Menu.news.content.tcg.Label = "TCG Items"
+TofuInnkeeper.Menu.news.content.tcg.Order = 3
+
+TofuInnkeeper.Menu.news.content.legendaries.Label = "Removed Legendaries"
+TofuInnkeeper.Menu.news.content.legendaries.Order = 4
+
+TofuInnkeeper.Menu.news.content.ah.Label = "Auction House"
+TofuInnkeeper.Menu.news.content.ah.Order = 5
+
+TofuInnkeeper.Menu.news.content.realmfirst.Label = "Realm First Restored"
+TofuInnkeeper.Menu.news.content.realmfirst.Order = 6
+
+TofuInnkeeper.Menu.news.content.retail.Label = "Retail Achievements and Mounts"
+TofuInnkeeper.Menu.news.content.retail.Order = 7
+
+TofuInnkeeper.Menu.news.content.holidays.Label = "Holiday Control"
+TofuInnkeeper.Menu.news.content.holidays.Order = 8
+
+TofuInnkeeper.Menu.news.features.Label = "Features"
 TofuInnkeeper.Menu.news.features.Order = 3
+TofuInnkeeper.Menu.news.features.Text = "Conveniences the guilds have arranged for travelers like you."
 
-TofuInnkeeper.Menu.news.features.placeholder.Label = "(Placeholder) First features entry"
-TofuInnkeeper.Menu.news.features.placeholder.Text = "Replace this entry in tofu_innkeeper.conf, then type .reload config."
+TofuInnkeeper.Menu.news.features.combos.Label = "All Race-Racial-Class Combo"
+TofuInnkeeper.Menu.news.features.combos.Order = 1
+
+TofuInnkeeper.Menu.news.features.dkskip.Label = "Optional DK Starting Zone Skip"
+TofuInnkeeper.Menu.news.features.dkskip.Order = 2
+
+TofuInnkeeper.Menu.news.features.scaling.Label = "Dynamic Dungeon Scaling, all to 5->10 people"
+TofuInnkeeper.Menu.news.features.scaling.Order = 3
+
+TofuInnkeeper.Menu.news.features.xprates.Label = "Custom Individual XP Rates"
+TofuInnkeeper.Menu.news.features.xprates.Order = 4
+
+TofuInnkeeper.Menu.news.features.tracking.Label = "Free Mining/Herbalism Tracking"
+TofuInnkeeper.Menu.news.features.tracking.Order = 5
+
+TofuInnkeeper.Menu.news.features.autofish.Label = "Auto-Fishing"
+TofuInnkeeper.Menu.news.features.autofish.Order = 6
+
+TofuInnkeeper.Menu.news.features.flying.Label = "Flying in Old World"
+TofuInnkeeper.Menu.news.features.flying.Order = 7
+
+TofuInnkeeper.Menu.news.features.nocd.Label = "No Crafting CDs"
+TofuInnkeeper.Menu.news.features.nocd.Order = 8
