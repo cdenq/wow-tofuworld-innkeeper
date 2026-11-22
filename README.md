@@ -4,7 +4,7 @@ AzerothCore module for the Tofu Worldview server (mod-playerbots fork of azeroth
 
 ## What it does
 
-- SQL (`data/sql/db-world/updates/tofu_innkeeper_2026_11_20_00_kreemo.sql`, applied by the worldserver's updater as a module file): creature_template 900003 Kreemo, subname Innkeeper, level 80, faction 35, npcflag 65665 (gossip, vendor, innkeeper), ScriptName `npc_tofu_innkeeper`, and creature_template_model 900003 with display 7346 (the Gadgetzan innkeeper's goblin model). No spawn; the server spawns him with a Tofu custom SQL file.
+- SQL (`data/sql/db-world/updates/tofu_innkeeper_2026_11_20_00_kreemo.sql`, applied by the worldserver's updater as a module file): creature_template 900003 Kreemo, subname Innkeeper, level 80, faction 35, npcflag 69761 (gossip, vendor, repair, innkeeper), ScriptName `npc_tofu_innkeeper`, and creature_template_model 900003 with display 7346 (the Gadgetzan innkeeper's goblin model). No spawn; the server spawns him with a Tofu custom SQL file.
 - C++ (`src/tofu_innkeeper.cpp`):
   - First page: the greeting, the stock innkeeper buttons (Make this inn your home., Let me browse your goods. while Kreemo has `npc_vendor` items, Trick or Treat! during Hallow's End), then the conf menus.
   - Every conf menu opens a page with its paragraph, its submenus, and Back.
@@ -46,5 +46,5 @@ A dot in an id makes a submenu: `news.systems` is a button on the page of `news`
 ## Check
 
 - Server.log at startup: `TofuInnkeeper: loaded 24 menu node(s) (2 on the root page), text IDs 900100 to 900124.` with the shipped conf.
-- SQL (acore_world): `SELECT entry, name, subname, npcflag, ScriptName FROM creature_template WHERE entry = 900003;` = 900003, Kreemo, Innkeeper, 65665, npc_tofu_innkeeper.
+- SQL (acore_world): `SELECT entry, name, subname, npcflag, ScriptName FROM creature_template WHERE entry = 900003;` = 900003, Kreemo, Innkeeper, 69761, npc_tofu_innkeeper.
 - In game: Kreemo shows the greeting with Make this inn your home. and What's new in Azeroth?; What's new opens Systems, Content, Features, and Back, each listing its entries; Make this inn your home. asks to bind the hearthstone there.
