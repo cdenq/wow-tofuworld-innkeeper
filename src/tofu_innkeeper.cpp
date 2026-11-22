@@ -1,9 +1,10 @@
 /*
  * wow-tofuworld-innkeeper (deployed as mod-tofu-innkeeper)
  *
- * Kreemo <Tofu Innkeeper>, creature entry 900003, ScriptName npc_tofu_innkeeper.
+ * Kreemo <Innkeeper>, creature entry 900003, ScriptName npc_tofu_innkeeper.
  * Root page: the greeting, the stock innkeeper buttons (bind hearthstone, vendor when the creature has npc_vendor rows, Hallow's End trick-or-treat), then the conf menu nodes.
  * Menu nodes come from TofuInnkeeper.Menu.<id>.<Field> keys in tofu_innkeeper.conf. A dotted id is a child of the id before its last dot (news.systems is a child of news).
+ * A node with a Teleport field (map x y z orientation) is a teleport button: clicking it closes the menu and teleports the player; it is hidden from players already within HideWithin yards of the destination.
  * The conf is read at startup and on .reload config, so menus change live without a rebuild or restart.
  * Page text is pushed to the client with SMSG_NPC_TEXT_UPDATE right before each menu is sent, which overwrites the client's cached copy of that text ID, so players never need to delete their Cache folder.
  */
@@ -12,6 +13,7 @@
 #include "Creature.h"
 #include "CreatureScript.h"
 #include "GameEventMgr.h"
+#include "GridDefines.h"
 #include "Log.h"
 #include "NPCHandler.h"
 #include "Player.h"
@@ -25,6 +27,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -59,6 +62,13 @@ namespace TofuInnkeeper
         int32 order = 100;
         uint32 icon = 0;
         int32 parent = -1;                      // -1 means the root page
+        bool teleport = false;                  // true when the node has a valid Teleport field
+        uint32 mapId = 0;
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
+        float o = 0.0f;
+        float hideWithin = 0.0f;                // yards; 0 means always shown
         std::vector<uint32> children;           // node indexes, sorted by order then id
     };
 
@@ -107,6 +117,33 @@ namespace TofuInnkeeper
         return true;
     }
 
+    // Parses "map x y z orientation" into the node. Map validity is checked by Player::TeleportTo at click time, because the map store is not loaded yet when the conf is first read.
+    bool ParseTeleport(std::string const& value, Node& node)
+    {
+        std::istringstream in(value);
+        uint32 mapId;
+        float x, y, z, o;
+        std::string extra;
+        if (!(in >> mapId >> x >> y >> z >> o) || (in >> extra))
+            return false;
+
+        if (!Acore::IsValidMapCoord(x, y, z, o))
+            return false;
+
+        node.teleport = true;
+        node.mapId = mapId;
+        node.x = x;
+        node.y = y;
+        node.z = z;
+        node.o = o;
+        return true;
+    }
+
+    bool IsHiddenFor(Player* player, Node const& node)
+    {
+        return node.teleport && node.hideWithin > 0.0f && player->GetMapId() == node.mapId && player->IsWithinDist3d(node.x, node.y, node.z, node.hideWithin);
+    }
+
     void SortChildren(Tree& tree, std::vector<uint32>& children)
     {
         std::sort(children.begin(), children.end(), [&tree](uint32 a, uint32 b)
@@ -125,7 +162,7 @@ namespace TofuInnkeeper
 
         tree->enable = sConfigMgr->GetOption<bool>("TofuInnkeeper.Enable", true);
         tree->hallowsEnd = sConfigMgr->GetOption<bool>("TofuInnkeeper.HallowsEnd", true);
-        tree->greeting = sConfigMgr->GetOption<std::string>("TofuInnkeeper.Greeting", "Greetings, $n. Any member of the Tofu Worldview or the Tofu Challengers is welcome to our Guild Hub!");
+        tree->greeting = sConfigMgr->GetOption<std::string>("TofuInnkeeper.Greeting", "Sigh... these stooopid keeds...");
         tree->innLabel = sConfigMgr->GetOption<std::string>("TofuInnkeeper.InnLabel", "", false);
         tree->vendorLabel = sConfigMgr->GetOption<std::string>("TofuInnkeeper.VendorLabel", "", false);
         tree->backLabel = sConfigMgr->GetOption<std::string>("TofuInnkeeper.BackLabel", "Back");
@@ -143,7 +180,7 @@ namespace TofuInnkeeper
             std::size_t dot = rest.rfind('.');
             if (dot == std::string::npos)
             {
-                LOG_WARN("module", "TofuInnkeeper: key '{}' has no field name (expected {}<id>.Label, .Text, .Order, or .Icon). Skipped.", key, prefix);
+                LOG_WARN("module", "TofuInnkeeper: key '{}' has no field name (expected {}<id>.Label, .Text, .Order, .Icon, .Teleport, or .HideWithin). Skipped.", key, prefix);
                 continue;
             }
 
@@ -158,10 +195,10 @@ namespace TofuInnkeeper
 
             if (field == "Label")
                 ids[id] = true;
-            else if (field == "Text" || field == "Order" || field == "Icon")
+            else if (field == "Text" || field == "Order" || field == "Icon" || field == "Teleport" || field == "HideWithin")
                 ids.emplace(id, false);
             else
-                LOG_WARN("module", "TofuInnkeeper: key '{}' has an unknown field '{}' (expected Label, Text, Order, or Icon). Skipped.", key, field);
+                LOG_WARN("module", "TofuInnkeeper: key '{}' has an unknown field '{}' (expected Label, Text, Order, Icon, Teleport, or HideWithin). Skipped.", key, field);
         }
 
         // Parents before children: sort by depth, then by id.
@@ -226,6 +263,29 @@ namespace TofuInnkeeper
             {
                 LOG_WARN("module", "TofuInnkeeper: menu '{}' has Icon {} (allowed 0 to {}). Using 0.", id, node.icon, MAX_ICON);
                 node.icon = 0;
+            }
+
+            std::string teleport = sConfigMgr->GetOption<std::string>(prefix + id + ".Teleport", "", false);
+            if (!teleport.empty())
+            {
+                if (!ParseTeleport(teleport, node))
+                {
+                    LOG_WARN("module", "TofuInnkeeper: menu '{}' has Teleport '{}' (expected map x y z orientation). Skipped with its submenus.", id, teleport);
+                    continue;
+                }
+
+                node.hideWithin = sConfigMgr->GetOption<float>(prefix + id + ".HideWithin", 0.0f, false);
+                if (!(node.hideWithin >= 0.0f))
+                {
+                    LOG_WARN("module", "TofuInnkeeper: menu '{}' has HideWithin {} (must be 0 or more). Using 0.", id, node.hideWithin);
+                    node.hideWithin = 0.0f;
+                }
+            }
+
+            if (parent >= 0 && tree->nodes[parent].teleport)
+            {
+                LOG_WARN("module", "TofuInnkeeper: menu '{}' is under the teleport menu '{}', which opens no page. Skipped.", id, tree->nodes[parent].id);
+                continue;
             }
 
             uint32 index = uint32(tree->nodes.size());
@@ -336,6 +396,8 @@ namespace TofuInnkeeper
         for (uint32 child : *children)
         {
             Node const& c = tree.nodes[child];
+            if (IsHiddenFor(player, c))
+                continue;
             AddGossipItemFor(player, c.icon, c.label, sender, ACTION_NODE_BASE + child);
         }
 
@@ -414,7 +476,18 @@ public:
         }
 
         if (action >= ACTION_NODE_BASE && action - ACTION_NODE_BASE < tree->nodes.size())
+        {
+            Node const& node = tree->nodes[action - ACTION_NODE_BASE];
+            if (node.teleport)
+            {
+                CloseGossipMenuFor(player);
+                if (!IsHiddenFor(player, node) && !player->TeleportTo(node.mapId, node.x, node.y, node.z, node.o))
+                    LOG_WARN("module", "TofuInnkeeper: teleport '{}' to map {} ({}, {}, {}) failed for {}.", node.id, node.mapId, node.x, node.y, node.z, player->GetName());
+                return true;
+            }
+
             SendPage(player, creature, *tree, int32(action - ACTION_NODE_BASE));
+        }
         else
             SendPage(player, creature, *tree, -1);
 
