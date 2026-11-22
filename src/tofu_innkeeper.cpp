@@ -5,6 +5,7 @@
  * Root page: the greeting, the stock innkeeper buttons (bind hearthstone, vendor when the creature has npc_vendor rows, Hallow's End trick-or-treat), then the conf menu nodes.
  * Menu nodes come from TofuInnkeeper.Menu.<id>.<Field> keys in tofu_innkeeper.conf. A dotted id is a child of the id before its last dot (news.systems is a child of news).
  * A node with a Teleport field (map x y z orientation) is a teleport button: clicking it closes the menu and teleports the player; it is hidden from players already within HideWithin yards of the destination.
+ * A node with a Vendor field (an npc_vendor entry) is a vendor button: clicking it opens that vendor list (a multivendor list, which needs no creature_template row) in Kreemo's own vendor window, with his Repair buttons; it is hidden while that list has no items.
  * The conf is read at startup and on .reload config, so menus change live without a rebuild or restart.
  * Page text is pushed to the client with SMSG_NPC_TEXT_UPDATE right before each menu is sent, which overwrites the client's cached copy of that text ID, so players never need to delete their Cache folder.
  */
@@ -16,6 +17,7 @@
 #include "GridDefines.h"
 #include "Log.h"
 #include "NPCHandler.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
@@ -69,6 +71,7 @@ namespace TofuInnkeeper
         float z = 0.0f;
         float o = 0.0f;
         float hideWithin = 0.0f;                // yards; 0 means always shown
+        uint32 vendorEntry = 0;                 // npc_vendor entry opened by a vendor button; 0 means not a vendor button
         std::vector<uint32> children;           // node indexes, sorted by order then id
     };
 
@@ -144,6 +147,25 @@ namespace TofuInnkeeper
         return node.teleport && node.hideWithin > 0.0f && player->GetMapId() == node.mapId && player->IsWithinDist3d(node.x, node.y, node.z, node.hideWithin);
     }
 
+    // A vendor button needs the vendor flag on the creature (the buy and sell handlers check it) and at least one loaded item in its npc_vendor list.
+    bool HasVendorList(Creature* creature, uint32 vendorEntry)
+    {
+        if (!creature->IsVendor())
+            return false;
+
+        VendorItemData const* items = sObjectMgr->GetNpcVendorItemList(vendorEntry);
+        return items && !items->Empty();
+    }
+
+    bool IsShownTo(Player* player, Creature* creature, Node const& node)
+    {
+        if (IsHiddenFor(player, node))
+            return false;
+        if (node.vendorEntry && !HasVendorList(creature, node.vendorEntry))
+            return false;
+        return true;
+    }
+
     void SortChildren(Tree& tree, std::vector<uint32>& children)
     {
         std::sort(children.begin(), children.end(), [&tree](uint32 a, uint32 b)
@@ -180,7 +202,7 @@ namespace TofuInnkeeper
             std::size_t dot = rest.rfind('.');
             if (dot == std::string::npos)
             {
-                LOG_WARN("module", "TofuInnkeeper: key '{}' has no field name (expected {}<id>.Label, .Text, .Order, .Icon, .Teleport, or .HideWithin). Skipped.", key, prefix);
+                LOG_WARN("module", "TofuInnkeeper: key '{}' has no field name (expected {}<id>.Label, .Text, .Order, .Icon, .Teleport, .HideWithin, or .Vendor). Skipped.", key, prefix);
                 continue;
             }
 
@@ -195,10 +217,10 @@ namespace TofuInnkeeper
 
             if (field == "Label")
                 ids[id] = true;
-            else if (field == "Text" || field == "Order" || field == "Icon" || field == "Teleport" || field == "HideWithin")
+            else if (field == "Text" || field == "Order" || field == "Icon" || field == "Teleport" || field == "HideWithin" || field == "Vendor")
                 ids.emplace(id, false);
             else
-                LOG_WARN("module", "TofuInnkeeper: key '{}' has an unknown field '{}' (expected Label, Text, Order, Icon, Teleport, or HideWithin). Skipped.", key, field);
+                LOG_WARN("module", "TofuInnkeeper: key '{}' has an unknown field '{}' (expected Label, Text, Order, Icon, Teleport, HideWithin, or Vendor). Skipped.", key, field);
         }
 
         // Parents before children: sort by depth, then by id.
@@ -282,9 +304,16 @@ namespace TofuInnkeeper
                 }
             }
 
-            if (parent >= 0 && tree->nodes[parent].teleport)
+            node.vendorEntry = sConfigMgr->GetOption<uint32>(prefix + id + ".Vendor", 0, false);
+            if (node.vendorEntry && node.teleport)
             {
-                LOG_WARN("module", "TofuInnkeeper: menu '{}' is under the teleport menu '{}', which opens no page. Skipped.", id, tree->nodes[parent].id);
+                LOG_WARN("module", "TofuInnkeeper: menu '{}' has both Teleport and Vendor (a button can do only one). Skipped with its submenus.", id);
+                continue;
+            }
+
+            if (parent >= 0 && (tree->nodes[parent].teleport || tree->nodes[parent].vendorEntry))
+            {
+                LOG_WARN("module", "TofuInnkeeper: menu '{}' is under the {} menu '{}', which opens no page. Skipped.", id, tree->nodes[parent].teleport ? "teleport" : "vendor", tree->nodes[parent].id);
                 continue;
             }
 
@@ -396,7 +425,7 @@ namespace TofuInnkeeper
         for (uint32 child : *children)
         {
             Node const& c = tree.nodes[child];
-            if (IsHiddenFor(player, c))
+            if (!IsShownTo(player, creature, c))
                 continue;
             AddGossipItemFor(player, c.icon, c.label, sender, ACTION_NODE_BASE + child);
         }
@@ -483,6 +512,14 @@ public:
                 CloseGossipMenuFor(player);
                 if (!IsHiddenFor(player, node) && !player->TeleportTo(node.mapId, node.x, node.y, node.z, node.o))
                     LOG_WARN("module", "TofuInnkeeper: teleport '{}' to map {} ({}, {}, {}) failed for {}.", node.id, node.mapId, node.x, node.y, node.z, player->GetName());
+                return true;
+            }
+
+            if (node.vendorEntry)
+            {
+                CloseGossipMenuFor(player);
+                if (HasVendorList(creature, node.vendorEntry))
+                    player->GetSession()->SendListInventory(creature->GetGUID(), node.vendorEntry);
                 return true;
             }
 

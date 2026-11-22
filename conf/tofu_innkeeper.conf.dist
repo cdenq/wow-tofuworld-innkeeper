@@ -53,10 +53,17 @@ TofuInnkeeper.TextIdBase = 900100
 #    TofuInnkeeper.Menu.<id>.Icon    Button icon 0 to 20 (optional, default 0, chat bubble). 1 bag, 2 flight, 3 book, 4 and 5 cog, 6 coin bag, 7 talk, 8 tabard, 9 swords, 10 dot.
 #    TofuInnkeeper.Menu.<id>.Teleport    "map x y z orientation" (optional). The button teleports the player and closes the menu instead of opening a page, so Text and submenus are ignored (submenus are skipped with a warning).
 #    TofuInnkeeper.Menu.<id>.HideWithin  Yards (optional, default 0 = always shown). A teleport button is hidden from players on the destination map within this distance of the destination.
+#    TofuInnkeeper.Menu.<id>.Vendor  An npc_vendor entry (optional). The button opens that vendor list in Kreemo's vendor window (with his Repair buttons) and closes the menu instead of opening a page, so Text and submenus are ignored (submenus are skipped with a warning). The button is hidden while the list has no items. Cannot be combined with Teleport.
 #
 # An id is letters, digits, and underscores. A dot makes a submenu: news.systems is a button on the news page. Every page except the first gets a Back button.
 # Limits: 99 menus in total; 29 buttons on the first page, 31 on every other page. Problems (a missing Label, a missing parent) are logged as TofuInnkeeper warnings at load and the menu is skipped.
 ###################################################################################################
+
+# Ammunition: every vendor-bought arrow and bullet for levels 1 to 80 at stock prices (npc_vendor list 900043, custom SQL tofu_2026_11_22_06_kreemo_ammo_vendor in wow-tofuworld-internal). Shown right after Let me browse your goods.
+TofuInnkeeper.Menu.ammo.Label = "Ammunition"
+TofuInnkeeper.Menu.ammo.Order = 1
+TofuInnkeeper.Menu.ammo.Icon = 1
+TofuInnkeeper.Menu.ammo.Vendor = 900043
 
 # Guild Hub: the upper floor of the GM Island building, the same spot as the Pocket Portal (A.R.T.H.A.S) Guild Hub option. Hidden when the player is already within 300 yards of it.
 TofuInnkeeper.Menu.guildhub.Label = "Guild Hub"
